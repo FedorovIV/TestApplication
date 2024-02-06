@@ -1,7 +1,8 @@
-package ru.FedorILyaCO.MLTests.application;
+package ru.FedorILyaCO.MLTests.application.pages;
 
 import org.jetbrains.annotations.NotNull;
 import ru.FedorILyaCO.MLTests.application.logic.DialogData;
+import ru.FedorILyaCO.MLTests.application.App;
 
 import javax.swing.*;
 import java.awt.*;
@@ -51,7 +52,7 @@ public class ChoosingPathsPage extends Page {
         setLayoutStartConfig();
         addComponentsOnLayout();
         addEventListeners();
-
+        setPrefs();
     }
 
     private void addComponentsOnLayout() {
@@ -127,9 +128,11 @@ public class ChoosingPathsPage extends Page {
             }
         });
         btnSave.addActionListener(e -> {
-            //TODO
-            if (checkPaths()) {
 
+            if (checkPaths()) {
+                app.getUP().setPathToPyFiles(textFieldPathPyFiles.getText());
+                app.getUP().setPathToTempData(textFieldPathTempData.getText());
+                createDialogWithDialogData(new DialogData("Изменения сохранены", ""));
             }
         });
         btnBackToMainPage.addActionListener(e -> {
@@ -186,6 +189,11 @@ public class ChoosingPathsPage extends Page {
     @Override
     public void setComponents() {
         app.setContentPane(contents);
+    }
+
+    private void setPrefs(){
+        textFieldPathPyFiles.setText(app.getUP().getPathToPyFiles());
+        textFieldPathTempData.setText(app.getUP().getPathToTempData());
     }
 }
 

@@ -1,6 +1,7 @@
-package ru.FedorILyaCO.MLTests.application;
+package ru.FedorILyaCO.MLTests.application.pages;
 
 import ru.FedorILyaCO.MLTests.application.logic.DialogData;
+import ru.FedorILyaCO.MLTests.application.App;
 
 import javax.swing.*;
 import java.awt.*;

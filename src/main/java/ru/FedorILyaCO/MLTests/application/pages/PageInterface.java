@@ -1,4 +1,4 @@
-package ru.FedorILyaCO.MLTests.application;
+package ru.FedorILyaCO.MLTests.application.pages;
 
 import javax.swing.*;
 import java.awt.*;

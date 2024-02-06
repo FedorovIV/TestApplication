@@ -1,16 +1,15 @@
-package ru.FedorILyaCO.MLTests.application;
+package ru.FedorILyaCO.MLTests.application.pages;
 
+import ru.FedorILyaCO.MLTests.application.App;
 import ru.FedorILyaCO.MLTests.application.logic.VerticalLayout;
 
 import javax.swing.*;
-import java.awt.*;
 
-public class MainPage extends Page{
+public class MainPage extends Page {
 
     JPanel layout = new JPanel(new VerticalLayout());
     JButton btnGoToChoosingPathsPage = new JButton("Расположение папок с файлами");
     JButton btnGoToTestSettingsPage = new JButton("Настройка тестов");
-
     JButton btnGoToShowResultPage = new JButton("Показать результаты");
     public MainPage(App app) {
         super(app);
@@ -34,6 +33,9 @@ public class MainPage extends Page{
         });
         btnGoToShowResultPage.addActionListener(e -> {
             app.changePage(app.getPages().getShowResultPage());
+        });
+        btnGoToTestSettingsPage.addActionListener(e ->{
+            app.changePage(app.getPages().getTestSettingsPage());
         });
     }
 
