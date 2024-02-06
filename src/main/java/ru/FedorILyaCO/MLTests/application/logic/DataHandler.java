@@ -1,6 +1,7 @@
 package ru.FedorILyaCO.MLTests.application.logic;
 
 import javax.swing.*;
+import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -25,5 +26,21 @@ public class DataHandler {
             pathList.add(PathMaker.getPath(pathDir, listFileName));
         }
         return pathList;
+    }
+
+    public static List<String> getPyFilesName(Path path){
+
+        List<String> pyFilesNameList = new ArrayList<>();
+
+        File folder = new File(path.toString());
+        File[] listOfFiles = folder.listFiles();
+        assert listOfFiles != null;
+        for (File listOfFile : listOfFiles) {
+            if (listOfFile.isFile()) {
+               pyFilesNameList.add(listOfFile.getName());
+            }
+        }
+
+        return pyFilesNameList;
     }
 }

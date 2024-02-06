@@ -6,6 +6,9 @@ import ru.FedorILyaCO.MLTests.application.logic.DialogData;
 
 import javax.swing.*;
 import java.awt.*;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TestSettingsPage extends Page {
     JPanel contents = new JPanel();
@@ -17,8 +20,10 @@ public class TestSettingsPage extends Page {
     JButton btnUpdate = new JButton("Обновить");
 
     JButton btnSave = new JButton("Сохранить");
-    JList<String> listPyFiles = new JList<String>(new String[] {"Чай", "Кофе", "Минеральная", "Морс"});
-    JList<String> listTestConf = new JList<String>(new String[] {"Hello.py", "World.py"});
+    DefaultListModel<String> dataPyFiles = new DefaultListModel<String>();
+    JList<String> listPyFiles = new JList<String>(dataPyFiles);
+    DefaultListModel<String> dataTestConf = new DefaultListModel<String>();
+    JList<String> listTestConf = new JList<String>(dataTestConf);
 
     public JList<String> getListTestConf(){
         return listTestConf;
@@ -79,9 +84,42 @@ public class TestSettingsPage extends Page {
             app.getUP().setChosenPyFiles(DataHandler.getStringsFromJList(listTestConf));
             createDialogWithDialogData(new DialogData("Файлы выбраны", ""));
         });
+        btnUpdate.addActionListener(e -> {
+            updateListPyFiles();
+        });
+        btnRemoveTestConf.addActionListener(e -> {
+            while (!listTestConf.isSelectionEmpty()){
+                dataTestConf.remove(listTestConf.getSelectedIndex());
+            }
+        });
+        btnAddTestConf.addActionListener(e -> {
+            if (!listPyFiles.isSelectionEmpty()){
+
+                for (int selectedIndex : listPyFiles.getSelectedIndices()){
+                    dataTestConf.addElement(dataPyFiles.elementAt(selectedIndex));
+                }
+            }
+        });
+    }
+
+    private void updateListPyFiles(){
+        dataPyFiles.removeAllElements();
+        List<String> pyFilesName =DataHandler.getPyFilesName(Path.of(app.getUP().getPathToPyFiles()));
+        dataPyFiles.addAll(pyFilesName);
     }
     private void setPrefs(){
         listTestConf.setFixedCellHeight(20);
+        updateListPyFiles();
+        setListTestConfStartConf();
+    }
+    private void setListTestConfStartConf(){
+        listTestConf  .setSelectionMode(
+                ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        listPyFiles  .setSelectionMode(
+                ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        dataTestConf.addElement("gagaga");
+        dataTestConf.addElement("hihihi");
+        dataTestConf.addElement("opopop");
     }
     @Override
     public void setComponents() {app.setContentPane(contents);}
