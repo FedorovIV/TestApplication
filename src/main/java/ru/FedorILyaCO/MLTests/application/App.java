@@ -1,6 +1,9 @@
 package ru.FedorILyaCO.MLTests.application;
 
 
+import org.apache.log4j.Level;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import ru.FedorILyaCO.MLTests.application.pages.*;
 import ru.FedorILyaCO.MLTests.application.preferences.UserPreferences;
 import javax.swing.*;
@@ -8,6 +11,7 @@ import javax.swing.*;
 
 
 public class App extends JFrame {
+
 
     private App getApp(){
         return this;
@@ -37,6 +41,9 @@ public class App extends JFrame {
             return TestSettingsPage;
         }
 
+        private PageInterface byBitAPIPage = new ByBitAPIPage(getApp());
+
+        public PageInterface getByBitAPIPage() {return byBitAPIPage;}
 
     }
     public Pages getPages(){
@@ -54,6 +61,11 @@ public class App extends JFrame {
 
     public UserPreferences getUP(){
         return up;
+    }
+
+    private Logger log = LogManager.getLogger("log");
+    public Logger getLog(){
+        return log;
     }
 
     public App() {

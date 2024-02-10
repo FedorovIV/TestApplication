@@ -47,7 +47,7 @@ public class ShowResultPage extends Page{
                         app.getUP().getPathToPyFiles());
                 try {
                     for (Path path : pathList){
-                        new PythonExecutor(path);
+                        new PythonExecutor();
                     }
                 } catch (Exception exception){
                     createDialogWithDialogData(new DialogData("Проблема с выполнением файла"

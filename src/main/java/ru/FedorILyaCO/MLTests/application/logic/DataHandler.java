@@ -1,5 +1,7 @@
 package ru.FedorILyaCO.MLTests.application.logic;
 
+import org.jfree.data.time.Second;
+
 import javax.swing.*;
 import java.io.File;
 import java.nio.file.Path;
@@ -42,5 +44,38 @@ public class DataHandler {
         }
 
         return pyFilesNameList;
+    }
+
+    public static class ByBitAPITemplate{
+        String firstTicker;
+        String secondTicker;
+        String baseInterval;
+        String dataBegin;
+        String dataEnd;
+
+        public ByBitAPITemplate(String firstTicker, String secondTicker,
+        String baseInterval, String dataBegin, String dataEnd){
+            this.firstTicker = firstTicker;
+            this.secondTicker = secondTicker;
+            this.baseInterval = baseInterval;
+            this.dataBegin = dataBegin;
+            this.dataEnd = dataEnd;
+        }
+
+        public String getFirstTicker(){
+            return firstTicker;
+        }
+        public String getSecondTicker(){
+            return secondTicker;
+        }
+        public String getBaseInterval(){
+            return baseInterval;
+        }
+        public String getDataBegin(){
+            return dataBegin;
+        }
+        public String getDataEnd(){
+            return dataEnd;
+        }
     }
 }

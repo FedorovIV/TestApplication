@@ -5,9 +5,7 @@ import ru.FedorILyaCO.MLTests.application.logic.DataHandler;
 import ru.FedorILyaCO.MLTests.application.logic.DialogData;
 
 import javax.swing.*;
-import java.awt.*;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 
 public class TestSettingsPage extends Page {
@@ -103,9 +101,13 @@ public class TestSettingsPage extends Page {
     }
 
     private void updateListPyFiles(){
-        dataPyFiles.removeAllElements();
-        List<String> pyFilesName =DataHandler.getPyFilesName(Path.of(app.getUP().getPathToPyFiles()));
-        dataPyFiles.addAll(pyFilesName);
+        try {
+            dataPyFiles.removeAllElements();
+            List<String> pyFilesName =DataHandler.getPyFilesName(Path.of(app.getUP().getPathToPyFiles()));
+            dataPyFiles.addAll(pyFilesName);
+        } catch (Exception ignored){
+
+        }
     }
     private void setPrefs(){
         listTestConf.setFixedCellHeight(20);
