@@ -25,9 +25,9 @@ public class PythonExecutor {
             throw new FileNotFoundException();
 
         process = Runtime.getRuntime().exec("python" + " " + pathToByBitAPIScript.toString());
-        System.out.println("python" + " " + pathToByBitAPIScript.toString());
+        //System.out.println("python" + " " + pathToByBitAPIScript.toString());
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
-        System.out.println(makeCommandForByBitAPIScript(byBitAPITemplate));
+        //System.out.println(makeCommandForByBitAPIScript(byBitAPITemplate));
         writer.write(makeCommandForByBitAPIScript(byBitAPITemplate));
         writer.close();
         return getResults(process);

@@ -9,9 +9,13 @@ import ru.FedorILyaCO.MLTests.application.pyExecution.PythonExecutor;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class ByBitAPIPage extends Page{
 
@@ -35,13 +39,12 @@ public class ByBitAPIPage extends Page{
     JButton btnExecute = new JButton("Выполнить");
     DefaultListModel <String> dataListOfTemplate = new DefaultListModel<>();
     JList <String> listOfTemplate = new JList<String>(dataListOfTemplate);
-    DataHandler.ByBitAPITemplate byBitAPITemplate;
+    List<DataHandler.ByBitAPITemplate> byBitAPITemplateList =
+            new ArrayList<>();
+
+
     public ByBitAPIPage(App app) {
         super(app);
-        dataListOfTemplate.addElement("Шаблон 1");
-        dataListOfTemplate.addElement("Шаблон 2");
-        dataListOfTemplate.addElement("Шаблон 3");
-        dataListOfTemplate.addElement("Шаблон 4");
         contents.setLayout(new FlowLayout(FlowLayout.LEFT));
         contents.add(group);
         setLayoutStartConfig();
@@ -123,32 +126,36 @@ public class ByBitAPIPage extends Page{
             app.changePage(app.getPages().getMainPage());
         });
         btnSaveTemplate.addActionListener(e ->{
-            app.getUP().setByBitAPIPageData(new UserPreferences.ByBitAPIPageData(
-                    textFieldFirstTicker.getText(),
-                    textFieldSecondTicker.getText(),
-                    textFieldBaseInterval.getText(),
-                    textFieldBeginData.getText(),
-                    textFieldEndData.getText()
-            ));
+            savePreference();
+            DataHandler.ByBitAPITemplate byBitAPITemplate = createTemplate();
+            byBitAPITemplateList.add(byBitAPITemplate);
+            dataListOfTemplate.addElement(DataHandler.getNameOfTemplate(byBitAPITemplate));
 
-            byBitAPITemplate = new DataHandler.ByBitAPITemplate(
-                    textFieldFirstTicker.getText(),
-                    textFieldSecondTicker.getText(),
-                    textFieldBaseInterval.getText(),
-                    textFieldBeginData.getText(),
-                    textFieldEndData.getText()
-            );
+        });
+        btnRemoveTemplate.addActionListener(e -> {
+            if (!listOfTemplate.isSelectionEmpty()){
+                int selectedIndex = listOfTemplate.getSelectedIndex();
+                byBitAPITemplateList.remove(selectedIndex);
+                dataListOfTemplate.remove(selectedIndex);
+            }
         });
         btnExecute.addActionListener(e ->{
-            try {
-                String result = new PythonExecutor().executeByBitAPIScript(byBitAPITemplate,
-                        Path.of(app.getUP().getPathToPyFiles()));
-                app.getLog().info(result);
-                createDialogWithDialogData(new DialogData("Data Frame успешно загружен", ""));
-            } catch (FileNotFoundException fileNotFoundException) {
-                createDialogWithDialogData(new DialogData("Не найден файл BybitAPI.py", "Error"));
-            } catch (Exception exception) {
-                createDialogWithDialogData(new DialogData("Проблема с исполнением файла", "Error"));
+
+
+
+            for (DataHandler.ByBitAPITemplate byBitAPITemplate : byBitAPITemplateList){
+
+                try {
+                    String result = new PythonExecutor().executeByBitAPIScript(byBitAPITemplate,
+                            Path.of(app.getUP().getPathToPyFiles()));
+                    app.getLog().info(result);
+                    createDialogWithDialogData(new DialogData("Data Frame " + DataHandler.getNameOfTemplate(byBitAPITemplate) +" успешно загружен", "Success", false));
+
+                } catch (FileNotFoundException fileNotFoundException) {
+                    createDialogWithDialogData(new DialogData("Не найден файл BybitAPI.py", "Error"));
+                } catch (Exception exception) {
+                    createDialogWithDialogData(new DialogData("Проблема с исполнением шаблона " + DataHandler.getNameOfTemplate(byBitAPITemplate), "Error", false));
+                }
             }
         });
     }
@@ -162,13 +169,32 @@ public class ByBitAPIPage extends Page{
         textFieldBeginData.setText(byBitAPIPageData.getDataBegin());
         textFieldEndData.setText(byBitAPIPageData.getDataEnd());
 
-//        dataListOfTemplate.addElement("Шаблон 1");
-//        dataListOfTemplate.addElement("Шаблон 2");
-//        dataListOfTemplate.addElement("Шаблон 3");
-//        dataListOfTemplate.addElement("Шаблон 4");
+        listOfTemplate.setSelectionMode(
+                ListSelectionModel.SINGLE_SELECTION);
+
+
     }
     @Override
     public void setComponents() {
         app.setContentPane(contents);
+    }
+    public void savePreference(){
+        app.getUP().setByBitAPIPageData(new UserPreferences.ByBitAPIPageData(
+                textFieldFirstTicker.getText(),
+                textFieldSecondTicker.getText(),
+                textFieldBaseInterval.getText(),
+                textFieldBeginData.getText(),
+                textFieldEndData.getText()
+        ));
+    }
+
+    public DataHandler.ByBitAPITemplate createTemplate(){
+        return new DataHandler.ByBitAPITemplate(
+                textFieldFirstTicker.getText(),
+                textFieldSecondTicker.getText(),
+                textFieldBaseInterval.getText(),
+                textFieldBeginData.getText(),
+                textFieldEndData.getText()
+        );
     }
 }

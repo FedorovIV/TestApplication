@@ -78,4 +78,12 @@ public class DataHandler {
             return dataEnd;
         }
     }
+
+    public static String getNameOfTemplate(ByBitAPITemplate byBitAPITemplate){
+        return byBitAPITemplate.getFirstTicker() + " " +
+               byBitAPITemplate.getSecondTicker() + " " +
+               byBitAPITemplate.getBaseInterval() + " " +
+               byBitAPITemplate.getDataBegin() + " " +
+               byBitAPITemplate.getDataEnd() + " ";
+    }
 }
