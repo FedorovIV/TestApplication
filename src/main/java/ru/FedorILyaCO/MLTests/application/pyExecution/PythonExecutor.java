@@ -77,6 +77,7 @@ public class PythonExecutor {
         }
     }
 
+
     public static String getResults(Process process) throws IOException{
         BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
         StringBuilder result = new StringBuilder();
@@ -92,3 +93,4 @@ public class PythonExecutor {
 
     }
 }
+

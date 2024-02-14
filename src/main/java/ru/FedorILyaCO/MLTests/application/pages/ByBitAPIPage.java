@@ -4,20 +4,24 @@ import org.apache.log4j.Level;
 import ru.FedorILyaCO.MLTests.application.App;
 import ru.FedorILyaCO.MLTests.application.logic.DataHandler;
 import ru.FedorILyaCO.MLTests.application.logic.DialogData;
+import ru.FedorILyaCO.MLTests.application.logic.VerticalLayout;
 import ru.FedorILyaCO.MLTests.application.preferences.UserPreferences;
+import ru.FedorILyaCO.MLTests.application.pyExecution.ExecuteInNewThread;
 import ru.FedorILyaCO.MLTests.application.pyExecution.PythonExecutor;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class ByBitAPIPage extends Page{
+public class ByBitAPIPage extends Page {
 
     JPanel contents = new JPanel();
     JPanel group = new JPanel();
@@ -37,8 +41,8 @@ public class ByBitAPIPage extends Page{
     JButton btnRemoveTemplate = new JButton("Удалить");
 
     JButton btnExecute = new JButton("Выполнить");
-    DefaultListModel <String> dataListOfTemplate = new DefaultListModel<>();
-    JList <String> listOfTemplate = new JList<String>(dataListOfTemplate);
+    DefaultListModel<String> dataListOfTemplate = new DefaultListModel<>();
+    JList<String> listOfTemplate = new JList<String>(dataListOfTemplate);
     List<DataHandler.ByBitAPITemplate> byBitAPITemplateList =
             new ArrayList<>();
 
@@ -53,7 +57,7 @@ public class ByBitAPIPage extends Page{
         setPrefs();
     }
 
-    private void addComponents(){
+    private void addComponents() {
 
         group.setLayout(layout);
         JPanel containerTextFieldTicker = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -62,7 +66,6 @@ public class ByBitAPIPage extends Page{
 
         JPanel containerTextFieldBaseInterval = new JPanel(new FlowLayout(FlowLayout.LEFT));
         containerTextFieldBaseInterval.add(textFieldBaseInterval);
-
 
 
         layout.setHorizontalGroup(layout.createParallelGroup()
@@ -116,16 +119,17 @@ public class ByBitAPIPage extends Page{
                 .addComponent(btnExecute)
         );
     }
+
     private void setLayoutStartConfig() {
         layout.setAutoCreateGaps(true);
         layout.setAutoCreateContainerGaps(true);
     }
 
-    private void addEventListeners(){
-        btnBackToMainPage.addActionListener(e ->{
+    private void addEventListeners() {
+        btnBackToMainPage.addActionListener(e -> {
             app.changePage(app.getPages().getMainPage());
         });
-        btnSaveTemplate.addActionListener(e ->{
+        btnSaveTemplate.addActionListener(e -> {
             savePreference();
             DataHandler.ByBitAPITemplate byBitAPITemplate = createTemplate();
             byBitAPITemplateList.add(byBitAPITemplate);
@@ -133,33 +137,55 @@ public class ByBitAPIPage extends Page{
 
         });
         btnRemoveTemplate.addActionListener(e -> {
-            if (!listOfTemplate.isSelectionEmpty()){
+            if (!listOfTemplate.isSelectionEmpty()) {
                 int selectedIndex = listOfTemplate.getSelectedIndex();
                 byBitAPITemplateList.remove(selectedIndex);
                 dataListOfTemplate.remove(selectedIndex);
             }
         });
-        btnExecute.addActionListener(e ->{
+        btnExecute.addActionListener(e -> {
 
+            JPanel panelExecuteInfo = new JPanel(new VerticalLayout());
+            JDialog executeStatusDialog = new JDialog(app, "Выполнение", true);
+            executeStatusDialog.setSize(new Dimension(600, 400));
 
+            executeStatusDialog.setContentPane(panelExecuteInfo);
 
-            for (DataHandler.ByBitAPITemplate byBitAPITemplate : byBitAPITemplateList){
+            Thread executor = new Thread(() -> {
+                for (DataHandler.ByBitAPITemplate byBitAPITemplate : byBitAPITemplateList) {
+                        if (Thread.currentThread().isInterrupted())
+                        {
+                            break;
+                        }
+                        try {
+                            String result = new PythonExecutor().executeByBitAPIScript(byBitAPITemplate,
+                                    Path.of(app.getUP().getPathToPyFiles()));
+                            app.getLog().info(result);
+                            panelExecuteInfo.add(new JLabel("Data Frame " + DataHandler.getNameOfTemplate(byBitAPITemplate) + " успешно загружен"));
 
-                try {
-                    String result = new PythonExecutor().executeByBitAPIScript(byBitAPITemplate,
-                            Path.of(app.getUP().getPathToPyFiles()));
-                    app.getLog().info(result);
-                    createDialogWithDialogData(new DialogData("Data Frame " + DataHandler.getNameOfTemplate(byBitAPITemplate) +" успешно загружен", "Success", false));
-
-                } catch (FileNotFoundException fileNotFoundException) {
-                    createDialogWithDialogData(new DialogData("Не найден файл BybitAPI.py", "Error"));
-                } catch (Exception exception) {
-                    createDialogWithDialogData(new DialogData("Проблема с исполнением шаблона " + DataHandler.getNameOfTemplate(byBitAPITemplate), "Error", false));
+                        } catch (FileNotFoundException fileNotFoundException) {
+                            panelExecuteInfo.add(new JLabel("Не найден файл BybitAPI.py"));
+                        } catch (Exception exception) {
+                            panelExecuteInfo.add(new JLabel("Проблема с исполнением шаблона " + DataHandler.getNameOfTemplate(byBitAPITemplate)));
+                        } finally {
+                            executeStatusDialog.setContentPane(panelExecuteInfo);
+                        }
                 }
-            }
+            });
+            executeStatusDialog.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosing(WindowEvent e) {
+                    executor.interrupt();
+                    super.windowClosed(e);
+                }
+            });
+
+            executor.start();
+            executeStatusDialog.setVisible(true);
         });
     }
-    private void setPrefs(){
+
+    private void setPrefs() {
         labelPageName.setFont(new Font("Aria", Font.BOLD, 20));
 
         UserPreferences.ByBitAPIPageData byBitAPIPageData = app.getUP().getByBitAPIPageData();
@@ -174,11 +200,13 @@ public class ByBitAPIPage extends Page{
 
 
     }
+
     @Override
     public void setComponents() {
         app.setContentPane(contents);
     }
-    public void savePreference(){
+
+    public void savePreference() {
         app.getUP().setByBitAPIPageData(new UserPreferences.ByBitAPIPageData(
                 textFieldFirstTicker.getText(),
                 textFieldSecondTicker.getText(),
@@ -188,7 +216,7 @@ public class ByBitAPIPage extends Page{
         ));
     }
 
-    public DataHandler.ByBitAPITemplate createTemplate(){
+    public DataHandler.ByBitAPITemplate createTemplate() {
         return new DataHandler.ByBitAPITemplate(
                 textFieldFirstTicker.getText(),
                 textFieldSecondTicker.getText(),
