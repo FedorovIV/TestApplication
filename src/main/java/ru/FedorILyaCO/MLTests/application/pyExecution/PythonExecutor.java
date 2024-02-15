@@ -17,7 +17,7 @@ public class PythonExecutor {
     }
 
     public String executeByBitAPIScript(DataHandler.ByBitAPITemplate byBitAPITemplate,
-                                      Path pathToPyFiles) throws Exception{
+                                      Path pathToPyFiles, Path pathToTempFilesDataFrame) throws Exception{
 
         Path pathToByBitAPIScript = PathMaker.getPath(pathToPyFiles.toString(), "BybitAPI.py");
 
@@ -28,18 +28,20 @@ public class PythonExecutor {
         //System.out.println("python" + " " + pathToByBitAPIScript.toString());
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
         //System.out.println(makeCommandForByBitAPIScript(byBitAPITemplate));
-        writer.write(makeCommandForByBitAPIScript(byBitAPITemplate));
+        writer.write(makeCommandForByBitAPIScript(byBitAPITemplate, pathToTempFilesDataFrame));
         writer.close();
         return getResults(process);
     }
 
-    private String makeCommandForByBitAPIScript(DataHandler.ByBitAPITemplate byBitAPITemplate){
+    private String makeCommandForByBitAPIScript(DataHandler.ByBitAPITemplate byBitAPITemplate, Path pathToTempFilesDataFrame){
 
         return "1\n" +
                 byBitAPITemplate.getFirstTicker() + byBitAPITemplate.getSecondTicker() + "\n" +
                 byBitAPITemplate.getBaseInterval() + "\n" +
                 byBitAPITemplate.getDataBegin() + "\n" +
-                byBitAPITemplate.getDataEnd() + "\n";
+                byBitAPITemplate.getDataEnd() + "\n" +
+                pathToTempFilesDataFrame.toString() + "\n";
+
     }
     private static boolean isPathExist(Path path) {
         boolean result = true;
@@ -87,10 +89,6 @@ public class PythonExecutor {
         }
         return result.toString();
     }
-    public static void main(String[] args) throws Exception {
-        new PythonExecutor().executeByBitAPIScript
-                (null, Path.of("C:\\programing\\java\\testAPI\\TestApplication\\MyData\\PyFiles"));
 
-    }
 }
 

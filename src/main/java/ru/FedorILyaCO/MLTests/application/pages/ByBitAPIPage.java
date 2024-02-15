@@ -12,10 +12,8 @@ import ru.FedorILyaCO.MLTests.application.pyExecution.PythonExecutor;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -152,6 +150,15 @@ public class ByBitAPIPage extends Page {
             executeStatusDialog.setContentPane(panelExecuteInfo);
 
             Thread executor = new Thread(() -> {
+                Path pathToFolderWithDataFrame = Path.of(app.getUP().getPathToTempData() + "\\DataFrames\\");
+                if (Files.notExists(pathToFolderWithDataFrame)){
+                    try {
+                        Files.createDirectory(pathToFolderWithDataFrame);
+                    } catch (IOException ex) {
+                        panelExecuteInfo.add(new JLabel("Fatal Error: Не удалось создать папку DataFrames"));
+                        return;
+                    }
+                }
                 for (DataHandler.ByBitAPITemplate byBitAPITemplate : byBitAPITemplateList) {
                         if (Thread.currentThread().isInterrupted())
                         {
@@ -159,7 +166,8 @@ public class ByBitAPIPage extends Page {
                         }
                         try {
                             String result = new PythonExecutor().executeByBitAPIScript(byBitAPITemplate,
-                                    Path.of(app.getUP().getPathToPyFiles()));
+                                    Path.of(app.getUP().getPathToPyFiles()),
+                                    pathToFolderWithDataFrame);
                             app.getLog().info(result);
                             panelExecuteInfo.add(new JLabel("Data Frame " + DataHandler.getNameOfTemplate(byBitAPITemplate) + " успешно загружен"));
 

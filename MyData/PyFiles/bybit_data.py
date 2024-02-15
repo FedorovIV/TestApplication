@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import time
 import math
+from pathlib import Path  
 
 #Получение сессии от bybit
 def get_session_from_bybit(key, secret):
@@ -144,7 +145,12 @@ def saving_dataframe_as_csv(df, parameters):
     df.index.name = 'utc_date'
     # создаем csv файл
     name_of_csv = (interval + '_' + symbol + '_' + starting_date + '_' + ending_date)
-    df.to_csv(name_of_csv + '.csv')
+
+    print("Please enter the path where you want to save the csv file")
+    
+    path = input()
+
+    df.to_csv(path +"\\"+ name_of_csv + '.csv')
     print(df)
     return name_of_csv
 
