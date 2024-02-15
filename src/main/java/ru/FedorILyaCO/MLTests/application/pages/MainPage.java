@@ -11,8 +11,9 @@ public class MainPage extends Page {
     JPanel contents = new JPanel();
     JPanel grid = new JPanel(new GridLayout(0, 1, 5, 10));
     JButton btnGoToChoosingPathsPage = new JButton("Расположение папок с файлами");
-    JButton btnGoToByBitAPIPage = new JButton("ByBitAPI");
     JButton btnGoToTestSettingsPage = new JButton("Настройка тестов");
+    JButton btnGoToByBitAPIPage = new JButton("ByBitAPI");
+    JButton btnGoToCreateDataSet = new JButton("Создать DataSet");
     JButton btnGoToShowResultPage = new JButton("Показать результаты");
 
     public MainPage(App app) {
@@ -29,8 +30,9 @@ public class MainPage extends Page {
     }
     private void addContents(){
         grid.add(btnGoToChoosingPathsPage);
-        grid.add(btnGoToByBitAPIPage);
         grid.add(btnGoToTestSettingsPage);
+        grid.add(btnGoToByBitAPIPage);
+        grid.add(btnGoToCreateDataSet);
         grid.add(btnGoToShowResultPage);
     }
 
@@ -38,11 +40,14 @@ public class MainPage extends Page {
         btnGoToChoosingPathsPage.addActionListener(e -> {
             app.changePage(app.getPages().getChoosingPathPage());
         });
+        btnGoToTestSettingsPage.addActionListener(e ->{
+            app.changePage(app.getPages().getTestSettingsPage());
+        });
         btnGoToByBitAPIPage.addActionListener(e -> {
             app.changePage(app.getPages().getByBitAPIPage());
         });
-        btnGoToTestSettingsPage.addActionListener(e ->{
-            app.changePage(app.getPages().getTestSettingsPage());
+        btnGoToCreateDataSet.addActionListener(e -> {
+            app.changePage((app.getPages().getCreateDataSetPage()));
         });
         btnGoToShowResultPage.addActionListener(e -> {
             app.changePage(app.getPages().getShowResultPage());

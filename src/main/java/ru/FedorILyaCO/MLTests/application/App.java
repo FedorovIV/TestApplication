@@ -45,6 +45,11 @@ public class App extends JFrame {
 
         public PageInterface getByBitAPIPage() {return byBitAPIPage;}
 
+        private PageInterface createDataSetPage = new CreateDataSetPage(getApp());
+
+        public PageInterface getCreateDataSetPage(){return createDataSetPage;}
+
+
     }
     public Pages getPages(){
         return pages;

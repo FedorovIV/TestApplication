@@ -86,4 +86,50 @@ public class DataHandler {
                byBitAPITemplate.getDataBegin() + " " +
                byBitAPITemplate.getDataEnd() + " ";
     }
+
+    public static class CreateDataSetTemplate{
+        String pathToDataFrame;
+        String dtp;
+        String dls;
+        String Rule;
+        String typeConsOrPar;
+        String y_Time;
+
+        public CreateDataSetTemplate(String pathToDataFrame, String dtp,
+                                String dls, String Rule, String typeConsOrPar, String y_Time){
+            this.pathToDataFrame = pathToDataFrame;
+            this.dtp = dtp;
+            this.dls = dls;
+            this.Rule = Rule;
+            this.typeConsOrPar = typeConsOrPar;
+            this.y_Time = y_Time;
+        }
+
+        public String getPathToDataFrame(){
+            return pathToDataFrame;
+        }
+        public String getDtp(){
+            return dtp;
+        }
+        public String getDls(){
+            return dls;
+        }
+        public String getRule(){
+            return Rule;
+        }
+        public String getTypeConsOrPar(){
+            return typeConsOrPar;
+        }
+        public String getY_Time(){
+            return y_Time;
+        }
+
+    }
+
+    public static String getNameOfTemplate(CreateDataSetTemplate createDataSetTemplate){
+        return createDataSetTemplate.getTypeConsOrPar() + " " +
+                createDataSetTemplate.getDtp() + " " +
+                createDataSetTemplate.getDls() + " " +
+                createDataSetTemplate.getY_Time() + " ";
+    }
 }
