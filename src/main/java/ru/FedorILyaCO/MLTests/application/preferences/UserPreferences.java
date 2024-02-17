@@ -1,6 +1,8 @@
 package ru.FedorILyaCO.MLTests.application.preferences;
 
+import java.io.File;
 import java.util.List;
+import java.util.Objects;
 import java.util.prefs.Preferences;
 
 
@@ -87,4 +89,65 @@ public class UserPreferences
         this.chosenPyFiles = chosenPyFiles;
     }
     public List<String> getChosenPyFiles(){return chosenPyFiles;}
+
+    public static class CreateDataSetData{
+        String pathToDataFrame;
+        String dtp;
+        String dls;
+        String Rule;
+        String typeConsOrPar;
+        String y_Time;
+
+        public CreateDataSetData(String pathToDataFrame, String dtp,
+                                     String dls, String Rule, String typeConsOrPar, String y_Time){
+            this.pathToDataFrame = pathToDataFrame;
+            this.dtp = dtp;
+            this.dls = dls;
+            this.Rule = Rule;
+            this.typeConsOrPar = typeConsOrPar;
+            this.y_Time = y_Time;
+        }
+
+        public String getPathToDataFrame(){
+            return pathToDataFrame;
+        }
+        public String getDtp(){
+            return dtp;
+        }
+        public String getDls(){
+            return dls;
+        }
+        public String getRule(){
+            return Rule;
+        }
+        public String getTypeConsOrPar(){
+            return typeConsOrPar;
+        }
+        public String getY_Time(){
+            return y_Time;
+        }
+
+    }
+
+    public CreateDataSetData getCreateDataSetData(){
+        Preferences upByBitAPIPage = userPrefs.node("pages").node("CreateDataSetPage");
+
+        return new CreateDataSetData(
+                upByBitAPIPage.get("pathToDataFrame", ""),
+                upByBitAPIPage.get("DTP", ""),
+                upByBitAPIPage.get("DLS", ""),
+                upByBitAPIPage.get("rule", ""),
+                upByBitAPIPage.get("typeConsOrPar", ""),
+                upByBitAPIPage.get("Y_Time", "")
+              );
+    }
+    public void setCreateDataSetData(CreateDataSetData createDataSetData){
+        Preferences upByBitAPIPage = userPrefs.node("pages").node("CreateDataSetPage");
+        upByBitAPIPage.put("DLS", createDataSetData.getDls());
+        upByBitAPIPage.put("DTP", createDataSetData.getDtp());
+        upByBitAPIPage.put("pathToDataFrame", createDataSetData.getPathToDataFrame());
+        upByBitAPIPage.put("rule", createDataSetData.getRule());
+        upByBitAPIPage.put("Y_Time", createDataSetData.getY_Time());
+        upByBitAPIPage.put("typeConsOrPar", createDataSetData.getTypeConsOrPar());
+    }
 }

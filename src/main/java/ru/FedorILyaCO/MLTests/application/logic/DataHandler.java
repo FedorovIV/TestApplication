@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 public class DataHandler {
     public static List<String> getStringsFromJList(JList<String> list){
@@ -124,6 +125,22 @@ public class DataHandler {
             return y_Time;
         }
 
+        public String getOneOrZeroInDependForTypeConsOrPar(){
+            if (Objects.equals(this.getTypeConsOrPar(), "Consistent")){
+                return "1";
+            } else {
+                return "0";
+            }
+        }
+
+        public String getNameOfDataSetFile(){
+            File f = new File(getPathToDataFrame());
+            return f.getName();
+        }
+        public String getPathToParentDirectory(){
+            File f = new File(getPathToDataFrame());
+            return f.getParent();
+        }
     }
 
     public static String getNameOfTemplate(CreateDataSetTemplate createDataSetTemplate){

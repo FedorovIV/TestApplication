@@ -3,15 +3,25 @@ package ru.FedorILyaCO.MLTests.application.pages;
 import ru.FedorILyaCO.MLTests.application.App;
 import ru.FedorILyaCO.MLTests.application.logic.DataHandler;
 import ru.FedorILyaCO.MLTests.application.logic.Localizator;
+import ru.FedorILyaCO.MLTests.application.logic.VerticalLayout;
+import ru.FedorILyaCO.MLTests.application.preferences.UserPreferences;
+import ru.FedorILyaCO.MLTests.application.pyExecution.PythonExecutor;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Enumeration;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.*;
 import java.util.List;
-import java.util.Locale;
+import java.util.prefs.Preferences;
 
 public class CreateDataSetPage extends PageWithGroupLayout{
     JLabel labelPageName = new JLabel("Создать DataSet");
@@ -131,9 +141,12 @@ public class CreateDataSetPage extends PageWithGroupLayout{
             app.changePage(app.getPages().getMainPage());
         });
         btnChooseDataFrame.addActionListener(new ActionListener() {
+
             public void actionPerformed(ActionEvent e) {
-                fileChooser.setDialogTitle("Выбор директории");
-                fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                if (!Objects.equals(app.getUP().getPathToPyFiles(), "")){
+                    fileChooser.setCurrentDirectory(new File(app.getUP().getPathToTempData()));
+                }
+                fileChooser.setDialogTitle("Выбор CSV файла");
                 int result = fileChooser.showOpenDialog(app);
                 if (result == JFileChooser.APPROVE_OPTION) {
                     textFieldChooseDataFrame.setText(fileChooser.getSelectedFile().getPath());
@@ -157,6 +170,57 @@ public class CreateDataSetPage extends PageWithGroupLayout{
             }
         });
 
+        btnExecute.addActionListener(e -> {
+
+            JPanel panelExecuteInfo = new JPanel(new VerticalLayout());
+            JDialog executeStatusDialog = new JDialog(app, "Выполнение", true);
+            executeStatusDialog.setSize(new Dimension(600, 400));
+
+            executeStatusDialog.setContentPane(panelExecuteInfo);
+
+            Thread executor = new Thread(() -> {
+                Path pathToFolderWithDataSets = Path.of(app.getUP().getPathToTempData() + "\\DataSets\\");
+                if (Files.notExists(pathToFolderWithDataSets)){
+                    try {
+                        Files.createDirectory(pathToFolderWithDataSets);
+                    } catch (IOException ex) {
+                        panelExecuteInfo.add(new JLabel("Fatal Error: Не удалось создать папку DataSets"));
+                        return;
+                    }
+                }
+                for (DataHandler.CreateDataSetTemplate createDataSetTemplate : createDataSetTemplateList) {
+                    if (Thread.currentThread().isInterrupted())
+                    {
+                        break;
+                    }
+                    try {
+                        String result = new PythonExecutor().executeCreateDataSet(createDataSetTemplate,
+                                Path.of(app.getUP().getPathToPyFiles()),
+                                pathToFolderWithDataSets);
+                        app.getLog().info(result);
+                        panelExecuteInfo.add(new JLabel("DataSet " + DataHandler.getNameOfTemplate(createDataSetTemplate) + " успешно создан"));
+
+                    } catch (FileNotFoundException fileNotFoundException) {
+                        panelExecuteInfo.add(new JLabel("Не найден файл CreateDataSets.py"));
+                    } catch (Exception exception) {
+                        panelExecuteInfo.add(new JLabel("Проблема с исполнением шаблона " + DataHandler.getNameOfTemplate(createDataSetTemplate)));
+                    } finally {
+                        executeStatusDialog.setContentPane(panelExecuteInfo);
+                    }
+                }
+            });
+
+            executeStatusDialog.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosing(WindowEvent e) {
+                    executor.interrupt();
+                    super.windowClosed(e);
+                }
+            });
+
+            executor.start();
+            executeStatusDialog.setVisible(true);
+        });
     }
 
     @Override
@@ -168,10 +232,35 @@ public class CreateDataSetPage extends PageWithGroupLayout{
 
         Localizator.localizeComponentsOfWindow();
 
+        FileNameExtensionFilter filter = new FileNameExtensionFilter( "CSV","csv");
+        fileChooser.setFileFilter(filter);
+
+        UserPreferences.CreateDataSetData createDataSetData = app.getUP().getCreateDataSetData();
+        textFieldChooseDataFrame.setText(createDataSetData.getPathToDataFrame());
+        textFieldDLS.setText(createDataSetData.getDls());
+        textFieldDTP.setText(createDataSetData.getDtp());
+        textAreaRule.setText(createDataSetData.getRule());
+        textFieldYTime.setText(createDataSetData.getY_Time());
+
+
+        if (Objects.equals(createDataSetData.getTypeConsOrPar(), "Consistent")){
+            radioButtonConsistent.setSelected(true);
+        } else {
+            radioButtonParallel.setSelected(true);
+        }
+
+
     }
 
     public void savePreference(){
-
+        app.getUP().setCreateDataSetData(new UserPreferences.CreateDataSetData(
+               textFieldChooseDataFrame.getText(),
+               textFieldDTP.getText(),
+               textFieldDLS.getText(),
+               textAreaRule.getText(),
+               getSelectedButtonText(groupRadioButton),
+               textFieldYTime.getText()
+        ));
     }
 
     public DataHandler.CreateDataSetTemplate createTemplate(){
